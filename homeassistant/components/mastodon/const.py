@@ -3,6 +3,8 @@
 import logging
 from typing import Final
 
+from awesomeversion import AwesomeVersion
+
 LOGGER = logging.getLogger(__name__)
 
 DOMAIN: Final = "mastodon"
@@ -19,3 +21,5 @@ ACCOUNT_USERNAME: Final = "username"
 ACCOUNT_FOLLOWERS_COUNT: Final = "followers_count"
 ACCOUNT_FOLLOWING_COUNT: Final = "following_count"
 ACCOUNT_STATUSES_COUNT: Final = "statuses_count"
+
+MIN_REQUIRED_MASTODON_VERSION = AwesomeVersion("1.0.0")
