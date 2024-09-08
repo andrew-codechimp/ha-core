@@ -159,18 +159,51 @@ class MastodonConfigFlow(ConfigFlow, domain=DOMAIN):
             return None, None, {"base": "unknown"}
         return instance, account, {}
 
+    def get_auth_request_url(
+        self,
+        base_url: str,
+        client_id: str,
+        client_secret: str,
+    ) -> tuple[
+        dict[str, str] | None,
+        dict[str, str] | None,
+        dict[str, str],
+    ]:
+        """Get the auth url for the Mastodon instance."""
+        try:
+            client = create_mastodon_client_oauth(
+                base_url,
+                client_id,
+                client_secret,
+            )
+            auth_request_url = client.auth_request_url(
+                redirect_uris=REDIRECT_URIS,
+                scopes=SCOPES,
+            )
+
+        except MastodonNetworkError:
+            return None, None, {"base": "network_error"}
+        except MastodonUnauthorizedError:
+            return None, None, {"base": "unauthorized_error"}
+        except Exception:  # noqa: BLE001
+            LOGGER.exception("Unexpected error")
+            return None, None, {"base": "unknown"}
+        return auth_request_url, {}
+
     async def async_generate_authorize_url(self) -> str:
         """Generate a url for the user to authorize based on user input."""
-        client = create_mastodon_client(
+
+        auto_request_url, errors = await self.hass.async_add_executor_job(
+            self.get_auth_request_url,
             self._data[CONF_BASE_URL],
             self._data[CONF_CLIENT_ID],
             self._data[CONF_CLIENT_SECRET],
         )
 
-        return client.auth_request_url(
-            redirect_uris=REDIRECT_URIS,
-            scopes=SCOPES,
-        )
+        if not errors:
+            return auto_request_url
+        reason = next(iter(errors.items()))[1]
+        return self.async_abort(reason=reason)
 
     async def async_oauth_create_entry(self, data: dict[str, Any]) -> ConfigFlowResult:
         """Complete OAuth setup and finish instance or finish."""
