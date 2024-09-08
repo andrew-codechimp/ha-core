@@ -253,34 +253,13 @@ class MastodonConfigFlow(ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Handle a flow initialized by the user."""
-        errors: dict[str, str] | None = None
 
         self._data = {}
         if self.source == SOURCE_REAUTH:
             return await super().async_step_user(user_input)
         # Application Credentials setup needs information from the user
         # before creating the OAuth URL
-        return await self.async_step_finish()
-
-        if user_input:
-            instance, account, errors = await self.hass.async_add_executor_job(
-                self.check_connection,
-                user_input[CONF_BASE_URL],
-                user_input[CONF_CLIENT_ID],
-                user_input[CONF_CLIENT_SECRET],
-                user_input[CONF_ACCESS_TOKEN],
-            )
-
-            if not errors:
-                name = construct_mastodon_username(instance, account)
-                await self.async_set_unique_id(slugify(name))
-                self._abort_if_unique_id_configured()
-                return self.async_create_entry(
-                    title=name,
-                    data=user_input,
-                )
-
-        return self.show_user_form(user_input, errors)
+        return await self.async_step_instance()
 
     async def async_step_instance(
         self, user_input: dict | None = None
