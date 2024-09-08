@@ -306,7 +306,8 @@ class MastodonConfigFlow(ConfigFlow, domain=DOMAIN):
                 title=name,
                 data=self._data,
             )
-        handle error
+        reason = next(iter(errors.items()))[1]
+        return self.async_abort(reason=reason)
 
     async def async_step_import(self, import_data: dict[str, Any]) -> ConfigFlowResult:
         """Import a config entry from configuration.yaml."""
