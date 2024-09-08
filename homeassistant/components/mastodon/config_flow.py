@@ -32,8 +32,8 @@ from homeassistant.util import slugify
 from .const import CONF_BASE_URL, DEFAULT_URL, DOMAIN, LOGGER
 from .utils import (
     construct_mastodon_username,
-    create_mastodon_client_oauth,
     create_mastodon_client,
+    create_mastodon_client_oauth,
 )
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
@@ -158,6 +158,19 @@ class MastodonConfigFlow(ConfigFlow, domain=DOMAIN):
             LOGGER.exception("Unexpected error")
             return None, None, {"base": "unknown"}
         return instance, account, {}
+
+    async def async_generate_authorize_url(self) -> str:
+        """Generate a url for the user to authorize based on user input."""
+        client = create_mastodon_client(
+            self._data[CONF_BASE_URL],
+            self._data[CONF_CLIENT_ID],
+            self._data[CONF_CLIENT_SECRET],
+        )
+
+        return client.auth_request_url(
+            redirect_uris=REDIRECT_URIS,
+            scopes=SCOPES,
+        )
 
     async def async_oauth_create_entry(self, data: dict[str, Any]) -> ConfigFlowResult:
         """Complete OAuth setup and finish instance or finish."""

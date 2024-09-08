@@ -8,9 +8,11 @@ from .const import ACCOUNT_USERNAME, DEFAULT_NAME, INSTANCE_DOMAIN, INSTANCE_URI
 
 
 def create_mastodon_client(
-    base_url: str, client_id: str, client_secret: str, access_token: str
+    base_url: str, client_id: str, client_secret: str, access_token: str | None
 ) -> Mastodon:
     """Create a Mastodon client with the api base url."""
+
+    # TODO: Remove the access token when we are using oAuth
     return Mastodon(
         api_base_url=base_url,
         client_id=client_id,
