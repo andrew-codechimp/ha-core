@@ -8,12 +8,7 @@ from typing import Any, Final
 from mastodon.Mastodon import Mastodon, MastodonNetworkError, MastodonUnauthorizedError
 import voluptuous as vol
 
-from homeassistant.config_entries import (
-    SOURCE_REAUTH,
-    ConfigEntry,
-    ConfigFlow,
-    ConfigFlowResult,
-)
+from homeassistant.config_entries import SOURCE_REAUTH, ConfigEntry, ConfigFlowResult
 from homeassistant.const import (
     CONF_ACCESS_TOKEN,
     CONF_CLIENT_ID,
@@ -26,7 +21,6 @@ from homeassistant.helpers.selector import (
     TextSelectorConfig,
     TextSelectorType,
 )
-from homeassistant.helpers.typing import ConfigType
 from homeassistant.util import slugify
 
 from .const import CONF_BASE_URL, DEFAULT_URL, DOMAIN, LOGGER
@@ -36,28 +30,13 @@ from .utils import (
     create_mastodon_client_oauth,
 )
 
-STEP_USER_DATA_SCHEMA = vol.Schema(
-    {
-        vol.Required(
-            CONF_BASE_URL,
-        ): TextSelector(TextSelectorConfig(type=TextSelectorType.URL)),
-        vol.Required(
-            CONF_CLIENT_ID,
-        ): TextSelector(TextSelectorConfig(type=TextSelectorType.PASSWORD)),
-        vol.Required(
-            CONF_CLIENT_SECRET,
-        ): TextSelector(TextSelectorConfig(type=TextSelectorType.PASSWORD)),
-        vol.Required(
-            CONF_ACCESS_TOKEN,
-        ): TextSelector(TextSelectorConfig(type=TextSelectorType.PASSWORD)),
-    }
-)
-
 SCOPES: Final = ["read", "write:statuses"]
 REDIRECT_URIS: Final = "https://my.home-assistant.io/redirect/oauth"
 
 
-class MastodonConfigFlow(ConfigFlow, domain=DOMAIN):
+class MastodonConfigFlow(
+    config_entry_oauth2_flow.AbstractOAuth2FlowHandler, domain=DOMAIN
+):
     """Handle a config flow."""
 
     VERSION = 1
@@ -141,12 +120,12 @@ class MastodonConfigFlow(ConfigFlow, domain=DOMAIN):
     ]:
         """Check connection to the Mastodon instance."""
         try:
-            client = create_mastodon_client(
+            client = create_mastodon_client_oauth(
                 base_url,
                 client_id,
                 client_secret,
-                access_token,
             )
+            client.log_in(code=access_token)
             instance = client.instance()
             account = client.account_verify_credentials()
 
@@ -213,25 +192,6 @@ class MastodonConfigFlow(ConfigFlow, domain=DOMAIN):
             LOGGER.debug("Skipping Instance configuration")
             return await self.async_step_finish()
         return await self.async_step_instance()
-
-    def show_user_form(
-        self,
-        user_input: dict[str, Any] | None = None,
-        errors: dict[str, str] | None = None,
-        description_placeholders: dict[str, str] | None = None,
-        step_id: str = "user",
-    ) -> ConfigFlowResult:
-        """Show the user form."""
-        if user_input is None:
-            user_input = {}
-        return self.async_show_form(
-            step_id=step_id,
-            data_schema=self.add_suggested_values_to_schema(
-                STEP_USER_DATA_SCHEMA, user_input
-            ),
-            description_placeholders=description_placeholders,
-            errors=errors,
-        )
 
     async def async_step_reauth(
         self, entry_data: Mapping[str, Any]
@@ -320,7 +280,7 @@ class MastodonConfigFlow(ConfigFlow, domain=DOMAIN):
             self._data[CONF_BASE_URL],
             self._data[CONF_CLIENT_ID],
             self._data[CONF_CLIENT_SECRET],
-            self._data[CONF_ACCESS_TOKEN],
+            self._data["token"]["access_token"],
         )
 
         if not errors:
