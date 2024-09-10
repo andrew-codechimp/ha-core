@@ -620,6 +620,7 @@ FLOWS = {
         "trafikverket_weatherstation",
         "transmission",
         "triggercmd",
+        "tsmart",
         "tuya",
         "twentemilieu",
         "twilio",
