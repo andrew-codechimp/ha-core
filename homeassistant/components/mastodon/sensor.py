@@ -21,7 +21,7 @@ from .const import (
     ACCOUNT_FOLLOWING_COUNT,
     ACCOUNT_STATUSES_COUNT,
 )
-from .entity import MastodonEntity
+from .entity import MastodonCoordinatorEntity
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -74,7 +74,7 @@ async def async_setup_entry(
     )
 
 
-class MastodonSensorEntity(MastodonEntity, SensorEntity):
+class MastodonSensorEntity(MastodonCoordinatorEntity, SensorEntity):
     """A Mastodon sensor entity."""
 
     entity_description: MastodonSensorEntityDescription

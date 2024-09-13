@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from functools import partial
 import mimetypes
 from typing import Any, cast
 
@@ -13,15 +15,20 @@ from homeassistant.components.notify import (
     ATTR_DATA,
     PLATFORM_SCHEMA as NOTIFY_PLATFORM_SCHEMA,
     BaseNotificationService,
+    NotifyEntity,
+    NotifyEntityDescription,
 )
 from homeassistant.config_entries import SOURCE_IMPORT
 from homeassistant.const import CONF_ACCESS_TOKEN, CONF_CLIENT_ID, CONF_CLIENT_SECRET
 from homeassistant.core import DOMAIN as HOMEASSISTANT_DOMAIN, HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import config_validation as cv, issue_registry as ir
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
+from . import MastodonConfigEntry
 from .const import CONF_BASE_URL, DEFAULT_URL, DOMAIN, LOGGER
+from .entity import MastodonBaseEntity
 
 ATTR_MEDIA = "media"
 ATTR_TARGET = "target"
@@ -38,6 +45,54 @@ PLATFORM_SCHEMA = NOTIFY_PLATFORM_SCHEMA.extend(
 )
 
 INTEGRATION_TITLE = "Mastodon"
+EVENT_NOTIFY = "notify"
+
+
+@dataclass(frozen=True, kw_only=True)
+class MastodonNotifyEntityDescription(NotifyEntityDescription):
+    """Describes Mastodon notify entity."""
+
+    visibility: str
+
+
+ENTITY_DESCRIPTIONS = (
+    MastodonNotifyEntityDescription(
+        key="notify_public",
+        translation_key="public",
+        visibility="public",
+    ),
+    MastodonNotifyEntityDescription(
+        key="notify_unlisted",
+        translation_key="unlisted",
+        visibility="unlisted",
+    ),
+    MastodonNotifyEntityDescription(
+        key="notify_private",
+        translation_key="private",
+        visibility="private",
+    ),
+    MastodonNotifyEntityDescription(
+        key="notify_direct",
+        translation_key="direct",
+        visibility="direct",
+    ),
+)
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: MastodonConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up the Mastodon notify entities."""
+
+    async_add_entities(
+        MastodonNotifyEntity(
+            entity_description=entity_description,
+            data=entry,
+        )
+        for entity_description in ENTITY_DESCRIPTIONS
+    )
 
 
 async def async_get_service(
@@ -96,6 +151,27 @@ async def async_get_service(
     client: Mastodon = discovery_info.get("client")
 
     return MastodonNotificationService(hass, client)
+
+
+class MastodonNotifyEntity(MastodonBaseEntity, NotifyEntity):
+    """Implement the notification entity for Mastodon."""
+
+    entity_description: MastodonNotifyEntityDescription
+    _attr_has_entity_name = True
+
+    async def async_send_message(self, message: str) -> None:
+        """Toot a message."""
+
+        try:
+            await self.hass.async_add_executor_job(
+                partial(
+                    self.client.status_post,
+                    status=message,
+                    visibility=self.entity_description.visibility,
+                )
+            )
+        except MastodonAPIError:
+            LOGGER.error("Unable to send message")
 
 
 class MastodonNotificationService(BaseNotificationService):

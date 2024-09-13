@@ -10,21 +10,21 @@ from .coordinator import MastodonCoordinator
 from .utils import construct_mastodon_username
 
 
-class MastodonEntity(CoordinatorEntity[MastodonCoordinator]):
+class MastodonBaseEntity:
     """Defines a base Mastodon entity."""
 
     _attr_has_entity_name = True
 
     def __init__(
         self,
-        coordinator: MastodonCoordinator,
         entity_description: EntityDescription,
         data: MastodonConfigEntry,
     ) -> None:
         """Initialize Mastodon entity."""
-        super().__init__(coordinator)
+        super().__init__()
         unique_id = data.unique_id
         assert unique_id is not None
+        self.client = data.runtime_data.client
         self._attr_unique_id = f"{unique_id}_{entity_description.key}"
 
         # Legacy yaml config default title is Mastodon, don't make name Mastodon Mastodon
@@ -46,3 +46,21 @@ class MastodonEntity(CoordinatorEntity[MastodonCoordinator]):
         )
 
         self.entity_description = entity_description
+
+
+class MastodonCoordinatorEntity(
+    CoordinatorEntity[MastodonCoordinator], MastodonBaseEntity
+):
+    """Defines a coordinator Mastodon entity."""
+
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator: MastodonCoordinator,
+        entity_description: EntityDescription,
+        data: MastodonConfigEntry,
+    ) -> None:
+        """Initialize Mastodon entity."""
+        super().__init__(coordinator)
+        MastodonBaseEntity.__init__(self, entity_description, data)

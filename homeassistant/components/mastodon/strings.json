@@ -37,6 +37,20 @@
     }
   },
   "entity": {
+    "notify": {
+      "public": {
+        "name": "Public"
+      },
+      "unlisted": {
+        "name": "Unlisted"
+      },
+      "private": {
+        "name": "Private"
+      },
+      "direct": {
+        "name": "Direct"
+      }
+    },
     "sensor": {
       "followers": {
         "name": "Followers"
