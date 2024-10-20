@@ -13,6 +13,7 @@ from homeassistant.components.climate import (
     PRESET_ECO,
     ClimateEntity,
     ClimateEntityFeature,
+    HVACAction,
     HVACMode,
 )
 from homeassistant.const import UnitOfTemperature
@@ -76,6 +77,15 @@ class TsmartClimateEntity(TsmartEntity, ClimateEntity):
     def hvac_mode(self) -> HVACMode | None:
         """Get HVAC mode."""
         return HVACMode.HEAT if self.coordinator.data.mode else HVACMode.OFF
+
+    @property
+    def hvac_action(self) -> HVACAction | None:
+        """Get the current action."""
+        if self.coordinator.data.power:
+            if self.coordinator.data.relay:
+                return HVACAction.HEATING
+            return HVACAction.IDLE
+        return HVACAction.OFF
 
     @property
     def current_temperature(self) -> float | None:
