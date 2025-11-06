@@ -666,6 +666,7 @@ FLOWS = {
         "tellduslive",
         "tesla_fleet",
         "tesla_wall_connector",
+        "teslauk_tsmart",
         "teslemetry",
         "tessie",
         "thermobeacon",

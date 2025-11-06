@@ -421,6 +421,9 @@ aiotedee==0.2.25
 # homeassistant.components.tractive
 aiotractive==0.6.0
 
+# homeassistant.components.teslauk_tsmart
+aiotsmart==1.0.3
+
 # homeassistant.components.unifi
 aiounifi==87
 

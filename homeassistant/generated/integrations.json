@@ -6700,6 +6700,12 @@
         }
       }
     },
+    "teslauk_tsmart": {
+      "name": "Tesla UK T-Smart",
+      "integration_type": "device",
+      "config_flow": true,
+      "iot_class": "local_polling"
+    },
     "teslemetry": {
       "name": "Teslemetry",
       "integration_type": "hub",

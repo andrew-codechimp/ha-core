@@ -1602,6 +1602,8 @@ build.json @home-assistant/supervisor
 /tests/components/tesla_fleet/ @Bre77
 /homeassistant/components/tesla_wall_connector/ @einarhauks
 /tests/components/tesla_wall_connector/ @einarhauks
+/homeassistant/components/teslauk_tsmart/ @andrew-codechimp
+/tests/components/teslauk_tsmart/ @andrew-codechimp
 /homeassistant/components/teslemetry/ @Bre77
 /tests/components/teslemetry/ @Bre77
 /homeassistant/components/tessie/ @Bre77

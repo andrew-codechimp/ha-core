@@ -1,0 +1,36 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "step": {
+      "reconfigure": {
+        "data": {
+          "host": "[%key:common::config_flow::data::host%]"
+        },
+        "data_description": {
+          "host": "[%key:component::teslauk_tsmart::config::step::user::data_description::host%]"
+        },
+        "description": "[%key:component::teslauk_tsmart::config::step::user::description%]"
+      },
+      "user": {
+        "data": {
+          "host": "[%key:common::config_flow::data::host%]"
+        },
+        "data_description": {
+          "host": "The IP address or hostname of your T-Smart water heater."
+        },
+        "description": "Connect to your T-Smart water heater"
+      }
+    }
+  },
+  "exceptions": {
+    "setup_failed": {
+      "message": "Could not connect to the T-Smart water heater."
+    }
+  }
+}
