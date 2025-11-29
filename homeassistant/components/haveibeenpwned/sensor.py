@@ -1,4 +1,4 @@
-"""Support for haveibeenpwned (email breaches) sensor."""
+"""HaveIBeenPwned platform for sensor components."""
 
 from __future__ import annotations
 
