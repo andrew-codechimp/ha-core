@@ -155,7 +155,7 @@ class HaveibeenpwnedConfigFlow(ConfigFlow, domain=DOMAIN):
         """Import a config entry from configuration.yaml."""
         errors: dict[str, str] | None = None
 
-        LOGGER.debug("Importing Have I Been Pwned from configuration.yaml")
+        LOGGER.debug("Importing HaveIBeenPwned from configuration.yaml")
 
         api_key = str(import_config.get(CONF_API_KEY))
         emails: list[str] = import_config.get(CONF_EMAIL, [])

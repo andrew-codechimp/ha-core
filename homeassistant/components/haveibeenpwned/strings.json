@@ -6,7 +6,7 @@
                     "api_key": "[%key:common::config_flow::data::api_key%]"
                 },
                 "data_description": {
-                    "api_key": "Your Have I Been Pwned API key."
+                    "api_key": "Your HaveIBeenPwned API key."
                 },
                 "description": "Get your API key from [here]({api_key_url})."
             }
@@ -16,22 +16,22 @@
         },
         "error": {
             "unauthorized_error": "The credentials are incorrect.",
-            "network_error": "The Mastodon instance was not found.",
-            "unknown": "Unknown error occured when connecting to the Mastodon instance."
+            "network_error": "HaveIBeenPwned was not found.",
+            "unknown": "Unknown error occured when connecting to HaveIBeenPwned."
         }
     },
     "issues": {
         "deprecated_yaml_import_issue_unauthorized_error": {
             "title": "YAML import failed due to an authentication error",
-            "description": "Configuring {integration_title} using YAML is being removed but there was an authentication error while importing your existing configuration.\nPlease use the UI to configure Mastodon. Don't forget to delete the YAML configuration."
+            "description": "Configuring HaveIBeenPwned using YAML is being removed but there was an authentication error while importing your existing configuration.\nPlease use the UI to configure HaveIBeenPwned. Don't forget to delete the YAML configuration."
         },
         "deprecated_yaml_import_issue_network_error": {
             "title": "YAML import failed because the instance was not found",
-            "description": "Configuring {integration_title} using YAML is being removed but no instance was found while importing your existing configuration.\nPlease use the UI to configure Mastodon. Don't forget to delete the YAML configuration."
+            "description": "Configuring HaveIBeenPwned using YAML is being removed but no instance was found while importing your existing configuration.\nPlease use the UI to configure HaveIBeenPwned. Don't forget to delete the YAML configuration."
         },
         "deprecated_yaml_import_issue_unknown": {
             "title": "YAML import failed with unknown error",
-            "description": "Configuring {integration_title} using YAML is being removed but there was an unknown error while importing your existing configuration.\nPlease use the UI to configure Mastodon. Don't forget to delete the YAML configuration."
+            "description": "Configuring HaveIBeenPwned using YAML is being removed but there was an unknown error while importing your existing configuration.\nPlease use the UI to configure HaveIBeenPwned. Don't forget to delete the YAML configuration."
         }
     }
 }
