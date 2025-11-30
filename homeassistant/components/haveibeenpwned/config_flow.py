@@ -6,13 +6,18 @@ from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    ConfigSubentryData,
+)
 from homeassistant.const import (
-    CONF_ACCESS_TOKEN,
+    CONF_API_KEY,
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
+    CONF_EMAIL,
     CONF_NAME,
-    CONF_API_KEY
 )
 from homeassistant.helpers.selector import (
     TextSelector,
@@ -21,15 +26,25 @@ from homeassistant.helpers.selector import (
 )
 from homeassistant.helpers.typing import ConfigType
 
-from .const import CONF_BASE_URL, DOMAIN, LOGGER, DEFAULT_NAME
+from .const import CONF_BASE_URL, DEFAULT_NAME, DOMAIN, LOGGER
 
 API_KEY_URL = "https://haveibeenpwned.com/API/Key"
+
+
+def subentries_from_emails(emails: list[str]) -> list[ConfigSubentryData]:
+    """Create subentries from a list of email addresses."""
+    return [
+        [ConfigSubentryData(subentry_type="email", title=email, data={"email": email})]
+        for email in emails
+    ]
+
 
 USER_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_API_KEY): str,
     }
 )
+
 
 class HaveibeenpwnedConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow."""
@@ -113,7 +128,7 @@ class HaveibeenpwnedConfigFlow(ConfigFlow, domain=DOMAIN):
 
         return self.show_user_form(user_input, errors)
 
-   async def async_step_user(
+    async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Handle a flow initialized by the user."""
@@ -142,11 +157,8 @@ class HaveibeenpwnedConfigFlow(ConfigFlow, domain=DOMAIN):
 
         LOGGER.debug("Importing Have I Been Pwned from configuration.yaml")
 
-        base_url = str(import_config.get(CONF_BASE_URL, DEFAULT_URL))
-        client_id = str(import_config.get(CONF_CLIENT_ID))
-        client_secret = str(import_config.get(CONF_CLIENT_SECRET))
-        access_token = str(import_config.get(CONF_ACCESS_TOKEN))
-        name = import_config.get(CONF_NAME, None)
+        api_key = str(import_config.get(CONF_API_KEY))
+        emails: list[str] = import_config.get(CONF_EMAIL, [])
 
         instance, account, errors = await self.hass.async_add_executor_job(
             self.check_connection,
@@ -157,20 +169,15 @@ class HaveibeenpwnedConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
         if not errors:
-            await self.async_set_unique_id(client_id)
+            await self.async_set_unique_id(api_key)
             self._abort_if_unique_id_configured()
 
-            if not name:
-                name = construct_mastodon_username(instance, account)
-
             return self.async_create_entry(
-                title=name,
+                title=DEFAULT_NAME,
                 data={
-                    CONF_BASE_URL: base_url,
-                    CONF_CLIENT_ID: client_id,
-                    CONF_CLIENT_SECRET: client_secret,
-                    CONF_ACCESS_TOKEN: access_token,
+                    CONF_API_KEY: api_key,
                 },
+                subentries=subentries_from_emails(emails),
             )
 
         reason = next(iter(errors.items()))[1]
